@@ -10,5 +10,5 @@ Some options of what can be done:
 # Status
 - Acquire data (in progress)
 - Perform analysis
-- ...
+- ???
 - Success!
