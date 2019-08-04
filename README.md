@@ -8,7 +8,8 @@ Some options of what can be done:
 - Create graph network with related meetups
 
 # Status
-- Acquire data (in progress)
+- Acquire data -> Done
+- Convert DataFrames into usable format (in progress)
 - Perform analysis
 - ???
 - Success!
