@@ -1,10 +1,12 @@
 import meetup.api
 import pandas as pd
+import time
 
 class MeetupDownload():
 
 	def groupToDF(self, group):
 		return pd.DataFrame.from_dict(group.__dict__)
+
 
 	def getTargetMeetup(self, target):
 		"""
@@ -13,7 +15,7 @@ class MeetupDownload():
 		:param target: Name of the meetup with data of interest
 		"""
 		tgt_group = self.client.GetGroup(urlname=target.lower())
-		df = self.dictToDF(tgt_group)
+		df = self.groupToDF(tgt_group)
 
 		return df
 
@@ -27,7 +29,7 @@ class MeetupDownload():
 		similar_groups = self.client.GetGroupSimilarGroups(urlname=target.lower())
 		df_list = []
 		for gp in similar_groups:
-			df_list.append(self.dictToDF(gp))
+			df_list.append(self.groupToDF(gp))
 
 		if len(df_list)==0:
 			print("No similar meetups were found")
@@ -38,24 +40,60 @@ class MeetupDownload():
 		return df_list
 
 
-	def getMeetupMembers(self, target):
+	def createMemberDF(self, member_list):
 		"""
-		Fetches data on members of target meetup
+		Support function to iterate through a list of members and create a dataframe
+
+		:param member_list: A list of members of a meetup as created by getMeetupMembers
+		"""
+		df = pd.DataFrame()
+
+		for member_id, member in enumerate(member_list):
+		    member_df = (
+		    	pd
+		        .DataFrame(list(member.items()))
+		        .set_index(pd.Index([member_id]*len(member)))
+		        .pivot(columns=0, values=1)
+		     )
+		    df = pd.concat([df, member_df])
+		    
+		return df
+
+
+	def getMeetupMembers(self, target, timer=5):
+		"""
+		Fetches data on members of target meetup. 
+		Since the API only returns 200 results at a time, we have to repeatedly make calls
+		until all members are fetched.
 
 		:param target: The meetup of interest
 		"""
-		member_list = client.GetMembers(group_urlname=target).__dict__['results']
-		df = pd.DataFrame()
+		api_list = [] 
+		offset = 0
 
+		while True:
+		    result = (
+		    	self.client
+		    	.GetMembers(group_urlname=target, offset=offset)
+		    	.__dict__['results']
+		    )
 
-		""" TO DO: Fix this bit of code """
-		for member in member_list:
-			if df.empty:
-				df = self.dictToDF(member)
-			else:
-				df = pd.concat(df, pd.DataFrame.from_dict(member), ignore_index=True)
+		    if len(result) == 0:
+		        break
+		    else:
+		        api_list.append(result)
+		        offset = offset+1
 
-		return df
+		    # Set a timer to avoiding bombarding API with calls 
+		    time.sleep(timer)
+
+		member_list = [
+			member 
+			for call_result in api_list 
+			for member in call_result
+		]
+
+		return self.createMemberDF(member_list)
 
 	def getGroupEvents():
 		pass
@@ -64,13 +102,4 @@ class MeetupDownload():
 	def __init__(self, api_key, client=None):
 		self.api_key = api_key
 		self.client = meetup.api.Client(api_key)
-
-
-if __name__ == '__main__':
-	api_key = "6968702120622427b7a4337f232316"
-	mtp_down = MeetupDownload(api_key)
-
-	tgt = 'pyladiesdublin'
-	peer_mtps = mtp_down.getPeerMeetups(tgt)
-
 	
