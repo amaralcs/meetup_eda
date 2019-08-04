@@ -12,3 +12,11 @@ Some options of what can be done:
 - Perform analysis
 - ???
 - Success!
+
+# References
+Meetup API
+https://www.meetup.com/meetup_api/
+
+Python API
+https://github.com/pferate/meetup-api
+https://meetup-api.readthedocs.io/en/latest/meetup_api.html#api-client-details
