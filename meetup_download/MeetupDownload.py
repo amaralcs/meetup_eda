@@ -1,12 +1,14 @@
-import meetup.api
 import pandas as pd
 import time
 
+import meetup.api
+
+
 class MeetupDownload():
 	"""
-		Class:	MeetupDownload
-		Author: Carlos Amaral
-		Date:	04/08/2019
+	Class:	MeetupDownload
+	Author: Carlos Amaral
+	Date:	04/08/2019
 	"""
 
 	def groupToDF(self, group):
