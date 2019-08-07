@@ -11,15 +11,15 @@ class MeetupDownload():
 	Date:	04/08/2019
 	"""
 
-	def groupToDF(self, group):
+	def group_to_df(self, group):
 		return pd.DataFrame.from_dict(group.__dict__)
 
 
-	def createMemberDF(self, member_list):
+	def create_member_df(self, member_list):
 		"""
 		Support function to iterate through a list of members and create a dataframe
 
-		:param member_list: A list of members of a meetup as created by getMeetupMembers
+		:param member_list: A list of members of a meetup as created by get_meetup_members
 		"""
 		df = pd.DataFrame()
 
@@ -35,14 +35,14 @@ class MeetupDownload():
 		return df
 
 
-	def resultsToDF(self, df_list):
+	def results_to_df(self, df_list):
 		df = pd.DataFrame()
 		for d in df_list:
 			df = pd.concat([df, pd.DataFrame(d)])
 		return df
 
 
-	def getAllResults(self, target, function, timer=3):
+	def get_all_results(self, target, function, timer=3):
 		"""
 		Method to get all results from an API call.
 		Since the API only returns 200 results at a time, it is necessary to repeat the call
@@ -52,7 +52,7 @@ class MeetupDownload():
 		:param function: API function to be called
 		:param timer: Time (in seconds) to wait before issue a new API call
 		"""
-		def getMeetupMembers(target, offset):
+		def get_meetup_members(target, offset):
 			"""
 			Method to get members that a part of target Meetup.
 
@@ -66,7 +66,7 @@ class MeetupDownload():
 		    )
 
 
-		def getMeetupEvents(target, offset):
+		def get_meetup_events(target, offset):
 			"""
 			Method to get past and upcoming events of a meetup. See Python API doc for 
 			other event statuses
@@ -85,8 +85,8 @@ class MeetupDownload():
 		offset = 0
 
 		api_call = {
-			'getMembers' : getMeetupMembers,
-			'getEvents' : getMeetupEvents
+			'getMembers' : get_meetup_members,
+			'getEvents' : get_meetup_events
 		}
 
 
@@ -109,24 +109,24 @@ class MeetupDownload():
 		]
 
 		if function == 'getMembers':
-			return self.createMemberDF(result_list)	
+			return self.create_member_df(result_list)	
 		else:
-			return self.resultsToDF(result_list)
+			return self.results_to_df(result_list)
 		
 
-	def getTargetMeetup(self, target):
+	def get_target_meetup(self, target):
 		"""
 		Creates a dataframe with information on a target group
 
 		:param target: Name of the meetup with data of interest
 		"""
 		tgt_group = self.client.GetGroup(urlname=target.lower())
-		df = self.groupToDF(tgt_group)
+		df = self.group_to_df(tgt_group)
 
 		return df
 
 
-	def getPeerMeetups(self, target):
+	def get_peer_meetups(self, target):
 		"""
 		Creates a list of dataframes with information on similar meetups to target
 
@@ -135,7 +135,7 @@ class MeetupDownload():
 		similar_groups = self.client.GetGroupSimilarGroups(urlname=target.lower())
 		df_list = []
 		for gp in similar_groups:
-			df_list.append(self.groupToDF(gp))
+			df_list.append(self.group_to_df(gp))
 
 		if len(df_list)==0:
 			print("No similar meetups were found")
