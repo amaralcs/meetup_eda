@@ -3,7 +3,6 @@ import time
 
 import meetup.api
 
-
 class MeetupDownload():
 	"""
 	Class:	MeetupDownload
