@@ -1,6 +1,8 @@
 import pandas as pd
 
 import download.meetup_download as mtd
+from settings import API_KEY, FILESTORE, GROUP_DATA_FNAME, DIM_COLS, \
+	DROPPED_COLS
 
 class TransformGroupData():
 
@@ -18,8 +20,8 @@ class TransformGroupData():
 			dim_df['target_meetup'] = self.target
 			return pd.DataFrame(dim_df).T
 
-		dims_df = df.loc[:, DIM_COLS]
-		dim_list = [dims_df[dims_df[col].notnull()][col] for col in DIM_COLS]
+		dims_df = df.loc[:, self.dim_cols]
+		dim_list = [dims_df[dims_df[col].notnull()][col] for col in self.dim_cols]
 		return [make_target_col(dim_df) for dim_df in dim_list]
 
 
@@ -32,7 +34,7 @@ class TransformGroupData():
 
 		:param df: Target group DF as returned by MeetupDownload.get_target_meetup
 		"""
-		fact_cols = [c for c in df.columns if c not in DIM_COLS]
+		fact_cols = [c for c in df.columns if c not in self.dim_cols]
 		fact_df = pd.DataFrame(df.loc['id', fact_cols]).T.reset_index(drop=True)
 		fact_df['target_meetup'] = self.target
 		return fact_df
@@ -46,7 +48,8 @@ class TransformGroupData():
 			df.to_csv(fname)
 
 
-	def __init__(self, api_key, filestore, group_data_fname, target, dim_cols):
+	def __init__(self, target, api_key=API_KEY, filestore=FILESTORE, \
+				 group_data_fname=GROUP_DATA_FNAME, dim_cols=DIM_COLS):
 		self.api_key = api_key,
 		self.filestore = filestore,
 		self.group_data_fname = group_data_fname

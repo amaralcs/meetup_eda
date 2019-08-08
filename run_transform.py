@@ -1,16 +1,19 @@
 import pandas as pd
 
 import transform.transform_group_data as tgd
-from settings import API_KEY, FILESTORE, GROUP_DATA_FNAME, TARGET, \
-	DROPPED_COLS, DIM_COLS
+from settings import TARGET
 
 
-def transform_group(group_transformer):
-	print(f"Transforming DFs for {TARGET}")
+def transform_group(group_transformer, target=TARGET):
+	"""
+	Method for downloading, transforming, and saving locally data from a target
+	meetup group
+	"""
+	print(f"Transforming DFs for {target}")
 	target_df = (
 		group_transformer
 		.meetup_download
-		.get_target_meetup(TARGET)
+		.get_target_meetup(target)
 		.drop(DROPPED_COLS, axis=1)
 	)
 	dim_list = group_transformer.create_dimension_df(target_df)
@@ -36,15 +39,10 @@ def transform_group(group_transformer):
 
 if __name__ == '__main__':
 
-	group_transformer = tgd.TransformGroupData(
-		API_KEY, 
-		FILESTORE,
-		GROUP_DATA_FNAME,
-		TARGET,
-		DIM_COLS
-	)
+	group_transformer = tgd.TransformGroupData()
 
-	transform_group(group_transformer)
+	group_transformer.meetup_download.get_peer_meetups
+	# transform_group(group_transformer)
 
 	
 
