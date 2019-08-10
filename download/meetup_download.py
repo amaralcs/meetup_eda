@@ -141,7 +141,8 @@ class MeetupDownload():
 			print("No similar meetups were found")
 			df_list.append(pd.DataFrame())
 		else:
-			print(f"Found {len(df_list)} groups similar to {target}")
+			pass
+			# print(f"Found {len(df_list)} groups similar to {target}")
 		
 		return df_list
 

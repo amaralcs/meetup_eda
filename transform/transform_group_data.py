@@ -1,8 +1,7 @@
 import pandas as pd
 
 import download.meetup_download as mtd
-from settings import API_KEY, FILESTORE, GROUP_DATA_FNAME, DIM_COLS, \
-	DROPPED_COLS
+from settings import API_KEY, FILESTORE, GROUP_DATA_FNAME, DIM_COLS
 
 class TransformGroupData():
 
@@ -20,8 +19,18 @@ class TransformGroupData():
 			dim_df['target_meetup'] = self.target
 			return pd.DataFrame(dim_df).T
 
-		dims_df = df.loc[:, self.dim_cols]
-		dim_list = [dims_df[dims_df[col].notnull()][col] for col in self.dim_cols]
+		group_id = df.loc['id', 'id']
+		# Make a temporary single row DF to store the group ID
+		temp = pd.DataFrame(
+			[[str(group_id)]*len(DIM_COLS)],
+			columns=DIM_COLS,
+			index=['group_id']
+		)
+		dims_df = pd.concat([temp, df.loc[:, self.dim_cols]])
+		dims_df.index = [i if i != 'id' else 'dim_id' for i in dims_df.index]
+
+		dim_list = [dims_df[dims_df[c].notnull()][c] for c in self.dim_cols]
+
 		return [make_target_col(dim_df) for dim_df in dim_list]
 
 
@@ -37,6 +46,7 @@ class TransformGroupData():
 		fact_cols = [c for c in df.columns if c not in self.dim_cols]
 		fact_df = pd.DataFrame(df.loc['id', fact_cols]).T.reset_index(drop=True)
 		fact_df['target_meetup'] = self.target
+		fact_df.index = [i if i != 'id' else 'group_id' for i in fact_df.index]
 		return fact_df
 
 
