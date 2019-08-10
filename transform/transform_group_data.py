@@ -60,10 +60,10 @@ class TransformGroupData():
 
 	def __init__(self, target, api_key=API_KEY, filestore=FILESTORE, \
 				 group_data_fname=GROUP_DATA_FNAME, dim_cols=DIM_COLS):
+		self.target = target
 		self.api_key = api_key,
 		self.filestore = filestore,
 		self.group_data_fname = group_data_fname
-		self.target = target
 		self.dim_cols = dim_cols
 
 		self.meetup_download = mtd.MeetupDownload(api_key)

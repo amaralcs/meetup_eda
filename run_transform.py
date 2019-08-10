@@ -4,19 +4,12 @@ import warnings
 warnings.simplefilter(action='ignore')
 
 import transform.transform_group_data as tgd
-from settings import TARGET, DROPPED_COLS, GROUP_DATA_FNAME, DIM_COLS, FILESTORE
+import transform.transform_user_data as tud
+from utils import write_results
+from settings import TARGET, DROPPED_COLS, GROUP_DATA_FNAME, GROUP_DIM_FNAME, DIM_COLS, \
+	USER_DROPPED_COLS, USER_DATA_FNAME, TOPIC_DATA_FNAME
 
 DEV_MODE = False
-
-def delete_existing_files():
-		folder = FILESTORE
-		for the_file in os.listdir(folder):
-			file_path = os.path.join(folder, the_file)
-			try:
-				if os.path.isfile(file_path):
-					os.unlink(file_path)
-			except Exception as e:
-				print(e)
 
 
 def transform_group(group_transformer, target=TARGET):
@@ -72,9 +65,6 @@ def transform_group(group_transformer, target=TARGET):
 	print("Fetching similar groups")
 	similar_dict = get_similar_groups()
 
-	if DEV_MODE:
-		delete_existing_files()
-
 	print("Concatenating DFs...")
 	for group in similar_dict:
 		fact_df = pd.concat([fact_df, similar_dict[group]['fact_df']])
@@ -83,25 +73,56 @@ def transform_group(group_transformer, target=TARGET):
 			for tgt_dim, sim_dim in zip(dim_list, similar_dict[group]['dim_df_list'])
 		]
 
-	try:
-	 	open(GROUP_DATA_FNAME)
-	 	print(f"File {GROUP_DATA_FNAME} already exists, appending to it...")
-	 	mode = 'a'
-	except Exception as e:
-	 	print(f"Creating files...")
-	 	mode = None
-
-	group_transformer.write_results(fact_df, GROUP_DATA_FNAME, mode)
+	write_results(fact_df, GROUP_DATA_FNAME, dev_mode=DEV_MODE)
 	for dim_df, dim_name in zip(dim_list, DIM_COLS):
-		dim_file = FILESTORE+f"/dim_{dim_name}.csv"
-		group_transformer.write_results(dim_df, dim_file, mode)
+		dim_file = GROUP_DIM_FNAME +f"{dim_name}.csv"
+		write_results(dim_df, dim_file, dev_mode=DEV_MODE)
+
+
+def transform_user_data(user_transformer,target=TARGET):
+
+	print("Fetching data...")
+	user_df = (
+		user_transformer
+		.meetup_download
+		.get_all_results(target, 'getMembers')
+		.drop(USER_DROPPED_COLS, axis=1)
+	)
+
+	print(f"Transforming dataframes for users of {target}:")
+	print("Fetching all topics")
+	all_topics = pd.concat([
+		df
+		for df in user_df['topics'].apply(user_transformer.make_topic_df)
+	])
+
+	print("Creating table with distinct topics of interest")
+	unique_ids = all_topics['topic_id'].unique()
+	unique_mask = all_topics['topic_id'].isin(unique_ids)
+	unique_topics = all_topics[unique_mask].reset_index(drop=True)
+	unique_topics['target'] = target
+
+	print("Transforming topics in user_df...")
+	user_topics = user_df.copy()
+	user_topics['topics'] = user_topics['topics'].apply(user_transformer.make_topic_df)
+	user_topics['topics'] = user_topics['topics'].apply(user_transformer.join_topics)
+	user_topics.columns = [
+		col 
+		if col!='id' else 'user_id' 
+		for col in user_topics.columns
+	]
+
+	write_results(user_topics, USER_DATA_FNAME, dev_mode=DEV_MODE)
+	write_results(unique_topics, TOPIC_DATA_FNAME, dev_mode=DEV_MODE)
+
 
 if __name__ == '__main__':
 
 	group_transformer = tgd.TransformGroupData(TARGET)
-
 	transform_group(group_transformer)
 
-	print("Complete.")
+	user_transformer = tud.TransformUserData(TARGET)
+	transform_user_data(user_transformer)
 
+	print("Transformations complete.")
 
