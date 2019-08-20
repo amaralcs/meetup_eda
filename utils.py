@@ -2,6 +2,7 @@
 File with utility functions
 """
 import re
+import os
 
 from settings import FILESTORE
 
@@ -28,7 +29,7 @@ def write_results(df, fname, mode=None, dev_mode=False):
 		print("-"*10, "DEV MODE IS ACTIVATED", "-"*10)
 		print("Overwriting existing files")
 		folder = re.search("((?:\\w+\\/){2})", fname).group()
-		delete_existing_files()
+		delete_existing_files(folder)
 
 	if mode == 'a':
 		print(f"Appending to existing file: {fname}")

@@ -3,6 +3,7 @@ import pandas as pd
 import download.meetup_download as mtd
 from settings import API_KEY, FILESTORE, GROUP_DATA_FNAME, DIM_COLS
 
+
 class TransformGroupData():
 
 	def create_dimension_df(self, df):

@@ -8,6 +8,7 @@ import download.meetup_download as mtd
 
 from settings import API_KEY, TARGET, FILESTORE, USER_DATA_FNAME
 
+
 class TransformUserData():
 
 	def make_topic_df(self, topic_list):
@@ -37,6 +38,7 @@ class TransformUserData():
 		except Exception as e:
 			return ''
 		return ','.join(ls)
+
 
 	def __init__(self, target, api_key=API_KEY, filestore=FILESTORE, \
 		user_data_fname=USER_DATA_FNAME):

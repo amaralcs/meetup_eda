@@ -5,9 +5,11 @@ warnings.simplefilter(action='ignore')
 
 import transform.transform_group_data as tgd
 import transform.transform_user_data as tud
+import transform.transform_event_data as ted
 from utils import write_results
-from settings import TARGET, DROPPED_COLS, GROUP_DATA_FNAME, GROUP_DIM_FNAME, DIM_COLS, \
-	USER_DROPPED_COLS, USER_DATA_FNAME, TOPIC_DATA_FNAME
+from settings import TARGET, DROPPED_COLS, GROUP_DATA_FNAME, GROUP_DIM_FNAME, \
+	DIM_COLS, USER_DROPPED_COLS, USER_DATA_FNAME, TOPIC_DATA_FNAME, \
+	EVENT_DROPPED_COLS, EVENT_DROPPED_ROWS, EVENT_DATA_FNAME, VENUE_DATA_FNAME
 
 DEV_MODE = False
 
@@ -116,13 +118,39 @@ def transform_user_data(user_transformer,target=TARGET):
 	write_results(unique_topics, TOPIC_DATA_FNAME, dev_mode=DEV_MODE)
 
 
+def transform_events(event_transformer, target=TARGET):
+
+	print("Fetching Event data")
+	events_df = (
+		event_transformer
+		.meetup_download
+		.get_all_results(TARGET, "getEvents")
+		.drop(EVENT_DROPPED_COLS, axis=1)
+	)
+
+	print("Updating column names")
+	cols = [c if c!= 'id' else 'event_id' for c in events_df.columns]
+	cols = [c if c!= 'venue' else 'venue_id' for c in cols]
+	events_df.columns = cols
+
+	print("Creating events table...")
+	fact_events = event_transformer.make_event_df(events_df)
+
+	print("Creating venues table...")
+	dim_venues = event_transformer.make_venue_df(events_df)
+
+	write_results(fact_events, EVENT_DATA_FNAME, dev_mode=DEV_MODE)
+	write_results(dim_venues, VENUE_DATA_FNAME, dev_mode=DEV_MODE)
+
 if __name__ == '__main__':
 
-	group_transformer = tgd.TransformGroupData(TARGET)
-	transform_group(group_transformer)
+	# group_transformer = tgd.TransformGroupData(TARGET)
+	# transform_group(group_transformer)
 
-	user_transformer = tud.TransformUserData(TARGET)
-	transform_user_data(user_transformer)
+	# user_transformer = tud.TransformUserData(TARGET)
+	# transform_user_data(user_transformer)
 
+	event_transformer = ted.TransformEventData(TARGET)
+	transform_events(event_transformer)
 	print("Transformations complete.")
 
