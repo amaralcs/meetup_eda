@@ -9,8 +9,8 @@ Some options of what can be done:
 
 # Status
 - Acquire data -> Done
-- Convert DataFrames into usable format (in progress)
-- Perform analysis
+- Convert DataFrames into usable format -> Done
+- Perform analysis (to do!)
 - ???
 - Success!
 
