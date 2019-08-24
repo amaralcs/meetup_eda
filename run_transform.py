@@ -144,11 +144,11 @@ def transform_events(event_transformer, target=TARGET):
 
 if __name__ == '__main__':
 
-	# group_transformer = tgd.TransformGroupData(TARGET)
-	# transform_group(group_transformer)
+	group_transformer = tgd.TransformGroupData(TARGET)
+	transform_group(group_transformer)
 
-	# user_transformer = tud.TransformUserData(TARGET)
-	# transform_user_data(user_transformer)
+	user_transformer = tud.TransformUserData(TARGET)
+	transform_user_data(user_transformer)
 
 	event_transformer = ted.TransformEventData(TARGET)
 	transform_events(event_transformer)
