@@ -10,7 +10,10 @@ Some options of what can be done:
 # Status
 - Acquire data -> Done
 - Convert DataFrames into usable format -> Done
-- Perform analysis (in progress)
+- Perform analysis 
+  - EDA -> Done
+  - Event categorisation using LDA -> Done
+  - Graph analysis on topics of interests to users -> In progress
 - ???
 - Success!
 
