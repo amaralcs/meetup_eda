@@ -35,5 +35,8 @@ extra_stopwords = [
     'sciencegallerycom', 'dogpatch', 'stilll', 'ran', 'door', 'arriving', 'short', 'next',
     'etc', 'month', 'suitable', 's[eaking', 'forget', 'interested', 'ok', 'last', 'get', 'feb',
     'find', 'optional', 'far', 'galligan', 'missed', 'final', 'rsvp', 'cannot', 'open', 
-    'nice', 'anywhere', 'solve', 'suzanne', 'female', 'summit', 'womens', 'max'
+    'nice', 'anywhere', 'solve', 'suzanne', 'female', 'summit', 'womens', 'max',
+    'something', 'involved', 'havent', 'im', 'doyou', 'moneyconf', 'folks', 'place', 
+    'following', 'mays', 'certificationurl', 'pad', 'us', 'much', 'mailing', 'coder', 
+    'chat', 'list', 'emailthis', 'continue', 'finish' 'early', 'kindly', 'canal'
 ]
